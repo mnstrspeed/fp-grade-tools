@@ -1,0 +1,19 @@
+--- a/mailto.sh	2015-03-16 15:23:46.000000000 +0100
++++ b/mailto.sh	2015-03-16 19:33:44.684197485 +0100
+@@ -1,4 +1,4 @@
+-#! /bin/sh
++#! /bin/sh 
+ 
+ set -e
+ 
+@@ -62,8 +62,8 @@
+ 		echo Could not find any email address for students: $TOID! >&2
+ 		touch "${file}.could_not_sent"
+ 	else
+-		sed -n '/^Date/p;/^Current Grade:/p;/^Feedback:/,$p' "$file" | tr -d '\r' | mail -a "$MIME" -n -s "$SUBJECT" ${FROM:+-a "From: $FROM"} ${BCC:+-b "$BCC"} $TO && echo "$TO" > "${file}.sent"
+-		#sed -n '/^Date/p;/^Current Grade:/p;/^Feedback:/,$p' "$file" | tr -d '\r' | "${0%/*}"/xmail.sh -a "$MIME" -s "$SUBJECT" ${FROM:+-f "$FROM"} ${BCC:+-b "$BCC"} $TO && echo "$TO" > "${file}.sent"
++                ATTACHMENTS=$(find `dirname "$file"` -iname \*.html)
++		sed -n '/^Date/p;/^Current Grade:/p;/^Feedback:/,$p' "$file" | tr -d '\r' | mutt -s "$SUBJECT" -b "$BCC" $TO -a ${ATTACHMENTS} && echo "$TO" > "${file}.sent"
+ 	fi
+ done
+ 
