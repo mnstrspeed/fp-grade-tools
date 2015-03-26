@@ -5,6 +5,7 @@
 
 import sys
 from os.path import join, dirname, basename
+import urllib
 
 COMMENT_TAG = "//>"
 
@@ -15,21 +16,11 @@ def has_comment(line):
 def get_comment(line):
 	return line.lstrip()[len(COMMENT_TAG)+1:]
 
-html_escape_table = {
-    "&": "&amp;",
-    '"': "&quot;",
-    "'": "&apos;",
-    ">": "&gt;",
-    "<": "&lt;",
-}
-
-def html_escape(text):
-    return "".join(html_escape_table.get(c,c) for c in text)
 
 for path in sys.argv[1:]:
 	print path
 	with open(path) as input, open(output_path(path), 'w') as output:
-		output.write("""
+		output.write("""\
 <html>
 	<head>
 	</head>
@@ -83,6 +74,6 @@ for path in sys.argv[1:]:
 					
 			if not in_comment:
 				output.write('<li>')
-				output.write('<pre><code class="code">' + html_escape(line.rstrip('\n')) + '</code></pre>')
+				output.write('<pre><code class="code">' + urllib.quote(line.rstrip('\n')) + '</code></pre>')
 
 		output.write('</ol></body></html>') 
