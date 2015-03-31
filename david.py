@@ -27,63 +27,68 @@ def get_comment(line):
 
 
 for path in sys.argv[1:]:
-    print(path)
-    with open(path) as input, open(output_path(path), 'w') as output:
-        output.write("""\
-<html>
-    <head>
-    </head>
-    <body>
-        <style type="text/css">
-            ol {
-                color: #eee;
-                font-family: monospace;
-            }
-            pre {
-                margin: 0;
-            }
-            ol .code {
-                color: #000;
-            }
-            ol .comment {
-                position: relative;
-                left: -0.5em;
-                padding: 0.5em;
-                margin: 1em 0;
-                background-color: rgb(0, 148, 255);
-                color: #fff;
-                font-family: sans-serif;
-            }
-            ol .comment:before {
-                content: '';
-                position: absolute;
-                width: 0;
-                height: 0;
-                left: 0.5em;
-                top: -1em;
-                border: 0.5em solid;
-                border-color: transparent transparent rgb(0, 148, 255)
-                     transparent;
-            }
-        </style>
-        <ol>""")
+    lines = []
+    with open(path) as input:
+        lines = input.readlines()
+    
+    if any(has_comment(l) for l in lines):
+        with open(output_path(path), 'w') as output:
+            print output_path(path)
+            output.write("""\
+    <html>
+        <head>
+        </head>
+        <body>
+            <style type="text/css">
+                ol {
+                    color: #eee;
+                    font-family: monospace;
+                }
+                pre {
+                    margin: 0;
+                }
+                ol .code {
+                    color: #000;
+                }
+                ol .comment {
+                    position: relative;
+                    left: -0.5em;
+                    padding: 0.5em;
+                    margin: 1em 0;
+                    background-color: rgb(0, 148, 255);
+                    color: #fff;
+                    font-family: sans-serif;
+                }
+                ol .comment:before {
+                    content: '';
+                    position: absolute;
+                    width: 0;
+                    height: 0;
+                    left: 0.5em;
+                    top: -1em;
+                    border: 0.5em solid;
+                    border-color: transparent transparent rgb(0, 148, 255)
+                         transparent;
+                }
+            </style>
+            <ol>""")
 
-        in_comment = False
-        for line in input:
+            in_comment = False
+            for line in lines:
 
-            if has_comment(line):
+                if has_comment(line):
+                    if not in_comment:
+                        output.write('<p class="comment">')
+                    output.write(get_comment(line))
+                    in_comment = True
+                else:
+                    if in_comment:
+                        output.write('</p>')
+                    output.write('</li>')
+                    in_comment = False
+
                 if not in_comment:
-                    output.write('<p class="comment">')
-                output.write(get_comment(line))
-                in_comment = True
-            else:
-                if in_comment:
-                    output.write('</p>')
-                output.write('</li>')
-                in_comment = False
+                    output.write('<li>')
+                    output.write('<pre><code class="code">' + escape(line.rstrip('\n')) + '</code></pre>')
 
-            if not in_comment:
-                output.write('<li>')
-                output.write('<pre><code class="code">' + escape(line.rstrip('\n')) + '</code></pre>')
-
-        output.write('</ol></body></html>')
+            output.write('</ol></body></html>')
